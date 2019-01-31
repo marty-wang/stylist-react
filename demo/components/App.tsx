@@ -1,29 +1,27 @@
 import * as React from "react";
-import { Counter } from "demo/components/Counter";
+import { getStylist } from "demo/themes/stylist";
+import { ThemeSelector } from "./ThemeSelector";
 
-interface IAppState {
-    count: number;
-}
+const { styleDiv, styleComponent } = getStylist("App");
 
-export class App extends React.Component<{}, IAppState> {
-    public state: IAppState = { count: 0 };
+const Root = styleDiv("Root", theme => ({
+    height: "100vh",
+    padding: "16px",
+    background: theme.backgroundColor,
+    color: theme.foregroundColor
+}));
 
+const MyThemeSelector = styleComponent(ThemeSelector)("MyThemeSelector", {
+    margin: "16px"
+});
+
+export class App extends React.Component {
     public render() {
         return (
-            <div>
-                <h1>Hello React!</h1>
-                <Counter
-                    count={this.state.count}
-                    onDecrease={() => this._updateCount(-1)}
-                    onIncrease={() => this._updateCount(1)}
-                />
-            </div>
+            <Root>
+                <MyThemeSelector />
+                <h1>Hello World!</h1>
+            </Root>
         );
-    }
-
-    private _updateCount(by: number) {
-        this.setState(prevState => {
-            return { count: prevState.count + by };
-        });
     }
 }
