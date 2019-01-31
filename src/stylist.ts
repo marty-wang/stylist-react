@@ -2,8 +2,6 @@
  * Copyright (c) Microsoft. All rights reserved.
  */
 
-import { observable, transaction } from "mobx";
-import { observer } from "mobx-react";
 import * as React from "react";
 import { endsWith, pluckExt, applyTheme, createThemeValueTable, createThemeVars, Theme } from "src/utils";
 import { keyframes, style, types } from "typestyle";
@@ -13,10 +11,9 @@ type NestedCssProps = types.NestedCSSProperties;
 type KeyFrames = types.KeyFrames;
 type ReactComponent<P> = React.StatelessComponent<P> | React.ComponentClass<P>;
 type StylableComponent<T> = keyof React.ReactHTML | ReactComponent<T> | keyof React.ReactSVG;
-type DynamicCss<TProps, TVars, TValues> = (
+type DynamicCss<TProps, TVars> = (
     props: Readonly<TProps>,
-    themeVars: TVars,
-    themeValues: TValues
+    themeVars: TVars
 ) => NestedCssProps | ReadonlyArray<NestedCssProps>;
 type ObjectOrCallback<TArgs, TO> = TO | ((args: TArgs) => TO);
 type StaticCss<TVars> = ObjectOrCallback<TVars, NestedCssProps | ReadonlyArray<NestedCssProps>>;
@@ -51,28 +48,22 @@ const animationNameFactory = <TScopedThemeVars>(scopedThemeVars: TScopedThemeVar
 const getStaticCssArrayCopy = <TVars>(Component: any): StaticCss<TVars>[] => (Component[staticCssField] || []).slice();
 
 // tslint:disable-next-line:no-any
-const getDynamicCssArrayCopy = (Component: any): DynamicCss<{}, {}, {}>[] => (Component[dynamicCssField] || []).slice();
+const getDynamicCssArrayCopy = (Component: any): DynamicCss<{}, {}>[] => (Component[dynamicCssField] || []).slice();
 
 // tslint:disable-next-line:no-any
 const isStyledComponent = (Component: any) => !!Component[dynamicCssField];
 
-type Arity3<A, B, C, O> = (a: A, b: B, c: C) => O;
+type Arity2<A, B, O> = (a: A, b: B) => O;
 
-const partialRight = <A, B, C, O>(fn: Arity3<A, B, C, O>, c: C, b: B) => (a: A) => fn(a, b, c);
+const partialRight = <A, B, O>(fn: Arity2<A, B, O>, b: B) => (a: A) => fn(a, b);
 
-/**
- * scopedThemeValues is a workaround for the bug below in Edge <= 15.
- * https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/11495448/
- * It should removed in favor of __scopedThemeVars__, once we don't support Edge or Edge > 15 is released.
- */
-const styledComponentFactory = <TScopedThemeVars, TScopedThemeValues>(
+const styledComponentFactory = <TScopedThemeVars>(
     getClassName: GetClassName<TScopedThemeVars>,
-    scopedThemeVars: TScopedThemeVars,
-    scopedThemeValues: TScopedThemeValues
+    scopedThemeVars: TScopedThemeVars
 ) => <TProps extends { className?: string }>(Component: StylableComponent<TProps>) => <TCustomProps>(
     styledComponentName: string,
     css: StaticCss<TScopedThemeVars>,
-    getCss?: DynamicCss<StyledComponentProps<TProps, TCustomProps>, TScopedThemeVars, TScopedThemeValues>
+    getCss?: DynamicCss<StyledComponentProps<TProps, TCustomProps>, TScopedThemeVars>
 ) => {
     if (typeof css === "function") {
         css = css(scopedThemeVars);
@@ -81,7 +72,7 @@ const styledComponentFactory = <TScopedThemeVars, TScopedThemeValues>(
     const staticCssArray = getStaticCssArrayCopy<TScopedThemeVars>(Component).concat(css);
 
     const dynamicCssArray = getDynamicCssArrayCopy(Component)
-        .concat(getCss && partialRight(getCss, scopedThemeValues, scopedThemeVars))
+        .concat(getCss && partialRight(getCss, scopedThemeVars))
         .filter(fn => !!fn);
 
     const staticCssClassName = getClassName(styledComponentName, ...staticCssArray);
@@ -103,7 +94,7 @@ const styledComponentFactory = <TScopedThemeVars, TScopedThemeValues>(
 
             if (!cssSet) {
                 const dynamicCss = StyledComponent[dynamicCssField].map(cssFn =>
-                    cssFn({ ...props, ...{ customProps } }, scopedThemeVars, scopedThemeValues)
+                    cssFn({ ...props, ...{ customProps } }, scopedThemeVars)
                 );
 
                 const dynamicCssClassName = getClassName(styledComponentName, ...dynamicCss);
@@ -119,7 +110,7 @@ const styledComponentFactory = <TScopedThemeVars, TScopedThemeValues>(
         }
     };
 
-    return observer(StyledComponent);
+    return StyledComponent;
 };
 
 export function important(cssProps: CSSProperties): CSSProperties {
@@ -146,28 +137,26 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
     initialThemeConfig: TThemeConfig,
     buildTheme: (config: TThemeConfig) => TTheme
 ) => {
-    const currentTheme: TTheme = <any>observable(buildTheme(initialThemeConfig));
+    const currentTheme = buildTheme(initialThemeConfig);
     const themeVars = createThemeVars(namespace, currentTheme);
 
     const themeValueTable = createThemeValueTable(namespace, currentTheme);
     applyTheme(namespace, themeValueTable);
 
-    const createStylist = <TScope extends string>(scope: TScope) => {
+    const getStylist = <TScope extends string>(scope: TScope) => {
         const scopedThemeVars = ensureDefined(pluckExt(themeVars, scope));
-        const scopedThemeValues = pluckExt(currentTheme, scope);
 
-        @observer
         class ScopedThemeConsumer extends React.Component<{
-            children: (themeVars: typeof scopedThemeVars, themeValues: typeof scopedThemeValues) => React.ReactNode;
+            children: (themeVars: typeof scopedThemeVars) => React.ReactNode;
         }> {
             public render() {
-                return this.props.children(scopedThemeVars, scopedThemeValues);
+                return this.props.children(scopedThemeVars);
             }
         }
 
         const getClassName = classNameFactory(scope, scopedThemeVars);
         const getAnimationName = animationNameFactory(scopedThemeVars);
-        const styleComponent = styledComponentFactory(getClassName, scopedThemeVars, scopedThemeValues);
+        const styleComponent = styledComponentFactory(getClassName, scopedThemeVars);
 
         return {
             ScopedThemeConsumer,
@@ -200,33 +189,31 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
         };
     };
 
-    const changeTheme = (themeConfig: TThemeConfig) => {
+    const setTheme = (themeConfig: TThemeConfig) => {
         const theme = buildTheme(themeConfig);
         const valueTable = createThemeValueTable(namespace, theme);
 
         applyTheme(namespace, valueTable);
 
-        transaction(() => {
-            Object.keys(theme).forEach(scope => {
-                const scopedTheme = theme[scope];
-                Object.keys(scopedTheme).forEach(key => {
-                    if (!currentTheme[scope]) {
-                        currentTheme[scope] = {};
-                    }
-                    currentTheme[scope][key] = scopedTheme[key];
-                });
+        Object.keys(theme).forEach(scope => {
+            const scopedTheme = theme[scope];
+            Object.keys(scopedTheme).forEach(name => {
+                if (!currentTheme[scope]) {
+                    currentTheme[scope] = {};
+                }
+                currentTheme[scope][name] = scopedTheme[name];
             });
         });
     };
 
     const devHotReloadTheme = (themeConfig: TThemeConfig, build: (config: TThemeConfig) => TTheme) => {
         buildTheme = build;
-        changeTheme(themeConfig);
+        setTheme(themeConfig);
     };
 
     return {
-        getStylist: createStylist,
-        setTheme: changeTheme,
+        getStylist,
+        setTheme,
         devHotReloadTheme
     };
 };
