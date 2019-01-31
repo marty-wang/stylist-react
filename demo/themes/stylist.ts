@@ -1,7 +1,6 @@
 import { stylistFactory } from "src/stylist";
-import { lightThemeConfig } from "demo/themes/lightThemeConfig";
+import { lightThemeConfig, darkThemeConfig } from "demo/themes/themeConfig";
 import { buildTheme } from "demo/themes/themeBuilder";
-import { darkThemeConfig } from "demo/themes/darkThemeConfig";
 
 export const { getStylist, setTheme } = stylistFactory("DEMO", lightThemeConfig, buildTheme);
 
