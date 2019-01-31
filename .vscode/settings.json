@@ -1,0 +1,18 @@
+{
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "tslint.enable": true,
+    "typescript.tsdk": "./node_modules/typescript/lib",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/._*": true,
+        "**/*.VC.db*": true,
+        "node_modules": true,
+        "dist": true,
+        "**/*.log": true,
+        "packages": true
+    }
+}
