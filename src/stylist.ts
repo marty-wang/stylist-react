@@ -145,18 +145,13 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
 
     const getStylist = <TScope extends string>(scope: TScope) => {
         const scopedThemeVars = ensureDefined(pluckExt(themeVars, scope));
-
-        class ScopedThemeConsumer extends React.Component<{
-            children: (themeVars: typeof scopedThemeVars) => React.ReactNode;
-        }> {
-            public render() {
-                return this.props.children(scopedThemeVars);
-            }
-        }
-
         const getClassName = classNameFactory(scope, scopedThemeVars);
         const getAnimationName = animationNameFactory(scopedThemeVars);
         const styleComponent = styledComponentFactory(getClassName, scopedThemeVars);
+
+        const ScopedThemeConsumer = (props: { children: (themeVars: typeof scopedThemeVars) => React.ReactNode }) => {
+            return props.children(scopedThemeVars);
+        };
 
         return {
             ScopedThemeConsumer,

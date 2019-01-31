@@ -1,16 +1,13 @@
 "use strict";
 
 const path = require("path");
-const webpack = require("webpack");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const WebpackNotifierPlugin = require("webpack-notifier");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 module.exports = {
     devtool: "source-map",
 
     resolve: {
-        // Add '.ts' and '.tsx' as resolvable extensions.
-        extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"],
+        extensions: [".webpack.js", ".web.js", ".ts", ".js"],
         modules: [path.resolve("."), "node_modules"]
     },
 
@@ -35,30 +32,30 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 loader: "ts-loader",
+                options: {
+                    configFile: path.join(__dirname, "./tsconfig.lib.json")
+                },
                 exclude: path.resolve(__dirname, "node_modules")
-            },
-            {
-                test: /\.css$/,
-                use: ["style-loader", "css-loader"]
             }
         ]
     },
 
-    entry: { app: ["./demo/Index.tsx"] },
+    entry: "./src/stylist.ts",
 
     output: {
-        path: path.join(__dirname, "dist/demo"),
-        filename: "[name].[hash].js"
+        path: path.join(__dirname, "dist"),
+        libraryTarget: "commonjs",
+        filename: "stylist.js"
+    },
+
+    externals: {
+        react: "react"
     },
 
     plugins: [
-        new webpack.DefinePlugin({
-            "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development"),
-            __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || "true"))
-        }),
-        new HtmlWebpackPlugin({
-            template: "demo/index.html"
-        }),
-        new WebpackNotifierPlugin()
+        new BundleAnalyzerPlugin({
+            analyzerMode: "static",
+            openAnalyzer: false
+        })
     ]
 };

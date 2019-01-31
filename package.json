@@ -4,20 +4,17 @@
     "description": "",
     "scripts": {
         "start": "node tools/devServer.js",
-        "build": "rimraf dist && cross-env NODE_ENV=production BUILD_DEV=false webpack -p"
+        "build": "rimraf dist && webpack --config webpack.lib.config.js --mode production"
     },
+    "typings": "./dist/stylist.d.ts",
     "dependencies": {
         "@types/react": "^16.0.15",
         "@types/react-dom": "^16.0.2",
-        "mobx": "^5.9.0",
-        "mobx-react": "^5.4.3",
         "react": "^16.0.0",
         "react-dom": "^16.0.0",
-        "tslib": "^1.9.3",
         "typestyle": "^2.0.1"
     },
     "devDependencies": {
-        "cross-env": "^3.1.3",
         "css-loader": "^0.26.1",
         "express": "^4.14.0",
         "html-webpack-plugin": "^3.2.0",
@@ -29,6 +26,8 @@
         "tslint-loader": "^3.5.3",
         "typescript": "^3.2.2",
         "webpack": "^4.29.0",
+        "webpack-bundle-analyzer": "^3.0.3",
+        "webpack-cli": "^3.2.1",
         "webpack-dev-middleware": "^3.5.1",
         "webpack-notifier": "^1.7.0"
     }
