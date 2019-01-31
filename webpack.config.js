@@ -44,7 +44,7 @@ module.exports = {
         ]
     },
 
-    entry: { app: ["./src/Index.tsx"] },
+    entry: { app: ["./demo/Index.tsx"] },
 
     output: {
         path: path.join(__dirname, "dist"),
@@ -57,7 +57,7 @@ module.exports = {
             __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || "true"))
         }),
         new HtmlWebpackPlugin({
-            template: "src/index.html"
+            template: "demo/index.html"
         }),
         new WebpackNotifierPlugin()
     ]

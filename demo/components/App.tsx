@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Counter } from "src/components/Counter";
+import { Counter } from "demo/components/Counter";
 
 interface IAppState {
     count: number;
