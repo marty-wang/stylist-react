@@ -3,10 +3,11 @@
  */
 
 import * as React from "react";
-import { endsWith, pluckExt, applyTheme, createThemeValueTable, createThemeVars, Theme } from "src/utils";
+import { endsWith, pluckExt, applyTheme, createThemeValueTable, createThemeVars, Theme } from "./utils";
 import { keyframes, style, types } from "typestyle";
 
 export type CSSProperties = types.CSSProperties;
+
 type NestedCssProps = types.NestedCSSProperties;
 type KeyFrames = types.KeyFrames;
 type ReactComponent<P> = React.StatelessComponent<P> | React.ComponentClass<P>;
@@ -113,7 +114,7 @@ const styledComponentFactory = <TScopedThemeVars>(
     return StyledComponent;
 };
 
-export function important(cssProps: CSSProperties): CSSProperties {
+export const important = (cssProps: CSSProperties): CSSProperties => {
     const suffix = "!important";
 
     Object.keys(cssProps).forEach((prop: keyof CSSProperties) => {
@@ -125,7 +126,7 @@ export function important(cssProps: CSSProperties): CSSProperties {
     });
 
     return cssProps;
-}
+};
 
 export const joinClassNames = (...classNames: string[]): string => classNames.filter(c => c).join(" ");
 

@@ -1,7 +1,14 @@
 {
-    "name": "stylist",
+    "name": "stylist-react",
     "version": "1.0.0",
-    "description": "",
+    "description": "theme first, fully static styled component for react",
+    "author": {
+        "name": "Mo Wang"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/marty-wang/stylist-react.git"
+    },
     "scripts": {
         "start": "node tools/devServer.js",
         "build": "rimraf dist && webpack --config webpack.lib.config.js --mode production"
