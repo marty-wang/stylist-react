@@ -9,7 +9,7 @@ webpackConfig.mode = "development";
 
 const app = express();
 const compiler = webpack(webpackConfig);
-const port = 3000;
+const port = 9898;
 
 app.use(
     webpackDevMiddleware(compiler, {

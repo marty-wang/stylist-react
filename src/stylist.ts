@@ -7,17 +7,17 @@ import { endsWith, pluckExt, applyTheme, createThemeValueTable, createThemeVars,
 import { keyframes, style, types } from "typestyle";
 
 export type CSSProperties = types.CSSProperties;
+export type NestedCSSProperties = types.NestedCSSProperties;
 
-type NestedCssProps = types.NestedCSSProperties;
 type KeyFrames = types.KeyFrames;
 type ReactComponent<P> = React.StatelessComponent<P> | React.ComponentClass<P>;
 type StylableComponent<T> = keyof React.ReactHTML | ReactComponent<T> | keyof React.ReactSVG;
 type DynamicCss<TProps, TVars> = (
     props: Readonly<TProps>,
     themeVars: TVars
-) => NestedCssProps | ReadonlyArray<NestedCssProps>;
+) => NestedCSSProperties | ReadonlyArray<NestedCSSProperties>;
 type ObjectOrCallback<TArgs, TO> = TO | ((args: TArgs) => TO);
-type StaticCss<TVars> = ObjectOrCallback<TVars, NestedCssProps | ReadonlyArray<NestedCssProps>>;
+type StaticCss<TVars> = ObjectOrCallback<TVars, NestedCSSProperties | ReadonlyArray<NestedCSSProperties>>;
 type GetClassName<TVars> = (debugName: string, ...cssProps: StaticCss<TVars>[]) => string;
 type StyledComponentProps<TProps, TCustomProps> = TProps & { customProps?: TCustomProps };
 
@@ -32,9 +32,9 @@ const classNameFactory = <TScopedThemeVars>(scope: string, scopedThemeVars: TSco
     const cssProperties = cssProps
         .map(css => (typeof css === "function" ? css(scopedThemeVars) : css))
         .filter(css => !!css)
-        .reduce<NestedCssProps[]>((r, c) => r.concat(c), []);
+        .reduce<NestedCSSProperties[]>((r, c) => r.concat(c), []);
     const isEmpty = cssProperties.every(css => !Object.keys(css).length);
-    const debugProps: NestedCssProps = { $debugName: `${scope}-${debugName}` };
+    const debugProps: NestedCSSProperties = { $debugName: `${scope}-${debugName}` };
     return isEmpty ? "" : style(...cssProperties, debugProps);
 };
 
@@ -150,8 +150,12 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
         const getAnimationName = animationNameFactory(scopedThemeVars);
         const styleComponent = styledComponentFactory(getClassName, scopedThemeVars);
 
-        const ScopedThemeConsumer = (props: { children: (themeVars: typeof scopedThemeVars) => React.ReactNode }) => {
-            return props.children(scopedThemeVars);
+        const ScopedThemeConsumer = class extends React.Component<{
+            children: (themeVars: typeof scopedThemeVars) => React.ReactNode;
+        }> {
+            public render() {
+                return this.props.children(scopedThemeVars);
+            }
         };
 
         return {
