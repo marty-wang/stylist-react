@@ -1,6 +1,6 @@
 {
     "name": "stylist-react",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "theme first, fully static styled component for react",
     "author": {
         "name": "Mo Wang"
@@ -15,6 +15,10 @@
     },
     "typings": "./dist/stylist.d.ts",
     "main": "./dist/stylist.js",
+    "files": [
+        "dist",
+        "LICENSE"
+    ],
     "dependencies": {
         "typestyle": "^2.0.1"
     },
