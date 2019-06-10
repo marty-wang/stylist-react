@@ -19,7 +19,7 @@ type DynamicCss<TProps, TVars> = (
 type ObjectOrCallback<TArgs, TO> = TO | ((args: TArgs) => TO);
 type StaticCss<TVars> = ObjectOrCallback<TVars, NestedCSSProperties | ReadonlyArray<NestedCSSProperties>>;
 type GetClassName<TVars> = (debugName: string, ...cssProps: StaticCss<TVars>[]) => string;
-type StyledComponentProps<TProps, TCustomProps> = TProps & { customProps?: TCustomProps };
+type StyledComponentProps<TProps, TCustomProps> = TProps & { customProps?: TCustomProps; originalRef?: React.Ref<{}> };
 
 const staticCssField = '__sc_static_css';
 const dynamicCssField = '__sc_dynamic_css';
@@ -82,7 +82,7 @@ const styledComponentFactory = <TScopedThemeVars>(
         public static [dynamicCssField] = dynamicCssArray;
 
         public render() {
-            const { customProps = <TCustomProps>{}, ...props } = <any>this.props;
+            const { customProps = <TCustomProps>{}, originalRef, ...props } = <any>this.props;
 
             const cssSet = props[cssSetFlag];
             props[cssSetFlag] = undefined;
@@ -101,6 +101,7 @@ const styledComponentFactory = <TScopedThemeVars>(
 
             return React.createElement(Component, {
                 ...props,
+                ...(isTargetStyledComponent ? { originalRef } : { ref: originalRef }),
                 className: joinClassNames(...classNames, this.props.className),
                 [cssSetFlag]: isTargetStyledComponent ? true : undefined
             });
