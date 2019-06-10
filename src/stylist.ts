@@ -2,9 +2,9 @@
  * Copyright (c) Microsoft. All rights reserved.
  */
 
-import * as React from "react";
-import { endsWith, pluckExt, applyTheme, createThemeValueTable, createThemeVars, Theme } from "./utils";
-import { keyframes, style, types } from "typestyle";
+import * as React from 'react';
+import { keyframes, style, types } from 'typestyle';
+import { applyTheme, createThemeValueTable, createThemeVars, endsWith, pluckExt, Theme } from './utils';
 
 export type CSSProperties = types.CSSProperties;
 export type NestedCSSProperties = types.NestedCSSProperties;
@@ -21,37 +21,34 @@ type StaticCss<TVars> = ObjectOrCallback<TVars, NestedCSSProperties | ReadonlyAr
 type GetClassName<TVars> = (debugName: string, ...cssProps: StaticCss<TVars>[]) => string;
 type StyledComponentProps<TProps, TCustomProps> = TProps & { customProps?: TCustomProps };
 
-const staticCssField = "__sc_static_css";
-const dynamicCssField = "__sc_dynamic_css";
-const cssSetFlag = "__sc_css_set";
+const staticCssField = '__sc_static_css';
+const dynamicCssField = '__sc_dynamic_css';
+const cssSetFlag = '__sc_css_set';
 
 const classNameFactory = <TScopedThemeVars>(scope: string, scopedThemeVars: TScopedThemeVars) => (
     debugName: string,
     ...cssProps: StaticCss<TScopedThemeVars>[]
 ) => {
     const cssProperties = cssProps
-        .map(css => (typeof css === "function" ? css(scopedThemeVars) : css))
+        .map(css => (typeof css === 'function' ? css(scopedThemeVars) : css))
         .filter(css => !!css)
         .reduce<NestedCSSProperties[]>((r, c) => r.concat(c), []);
     const isEmpty = cssProperties.every(css => !Object.keys(css).length);
     const debugProps: NestedCSSProperties = { $debugName: `${scope}-${debugName}` };
-    return isEmpty ? "" : style(...cssProperties, debugProps);
+    return isEmpty ? '' : style(...cssProperties, debugProps);
 };
 
 const animationNameFactory = <TScopedThemeVars>(scopedThemeVars: TScopedThemeVars) => (
     timeline: ObjectOrCallback<TScopedThemeVars, KeyFrames>
 ): string => {
-    const frames = typeof timeline === "function" ? timeline(scopedThemeVars) : timeline;
+    const frames = typeof timeline === 'function' ? timeline(scopedThemeVars) : timeline;
     return keyframes(frames);
 };
 
-// tslint:disable-next-line:no-any
 const getStaticCssArrayCopy = <TVars>(Component: any): StaticCss<TVars>[] => (Component[staticCssField] || []).slice();
 
-// tslint:disable-next-line:no-any
 const getDynamicCssArrayCopy = (Component: any): DynamicCss<{}, {}>[] => (Component[dynamicCssField] || []).slice();
 
-// tslint:disable-next-line:no-any
 const isStyledComponent = (Component: any) => !!Component[dynamicCssField];
 
 type Arity2<A, B, O> = (a: A, b: B) => O;
@@ -66,7 +63,7 @@ const styledComponentFactory = <TScopedThemeVars>(
     css: StaticCss<TScopedThemeVars>,
     getCss?: DynamicCss<StyledComponentProps<TProps, TCustomProps>, TScopedThemeVars>
 ) => {
-    if (typeof css === "function") {
+    if (typeof css === 'function') {
         css = css(scopedThemeVars);
     }
 
@@ -85,7 +82,6 @@ const styledComponentFactory = <TScopedThemeVars>(
         public static [dynamicCssField] = dynamicCssArray;
 
         public render() {
-            // tslint:disable-next-line:no-any
             const { customProps = <TCustomProps>{}, ...props } = <any>this.props;
 
             const cssSet = props[cssSetFlag];
@@ -115,12 +111,12 @@ const styledComponentFactory = <TScopedThemeVars>(
 };
 
 export const important = (cssProps: CSSProperties): CSSProperties => {
-    const suffix = "!important";
+    const suffix = '!important';
 
     Object.keys(cssProps).forEach((prop: keyof CSSProperties) => {
         const val = cssProps[prop];
 
-        if ((typeof val === "string" || typeof val === "number") && !endsWith(val, suffix)) {
+        if ((typeof val === 'string' || typeof val === 'number') && !endsWith(val, suffix)) {
             cssProps[prop] = `${val} ${suffix}`;
         }
     });
@@ -128,9 +124,8 @@ export const important = (cssProps: CSSProperties): CSSProperties => {
     return cssProps;
 };
 
-export const joinClassNames = (...classNames: string[]): string => classNames.filter(c => c).join(" ");
+export const joinClassNames = (...classNames: string[]): string => classNames.filter(c => c).join(' ');
 
-// tslint:disable-next-line:no-any
 const ensureDefined = <T>(obj: T): T => obj || <any>{};
 
 export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
@@ -164,28 +159,28 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
             getAnimationName,
             styleComponent,
             //HTML stylers
-            styleDiv: styleComponent<React.HTMLAttributes<HTMLDivElement>>("div"),
-            styleSpan: styleComponent<React.HTMLAttributes<HTMLSpanElement>>("span"),
-            styleHeader: styleComponent<React.HTMLAttributes<HTMLElement>>("header"),
-            styleFooter: styleComponent<React.HTMLAttributes<HTMLElement>>("footer"),
-            styleButton: styleComponent<React.ButtonHTMLAttributes<HTMLButtonElement>>("button"),
-            styleUlist: styleComponent<React.HTMLAttributes<HTMLUListElement>>("ul"),
-            styleLi: styleComponent<React.LiHTMLAttributes<HTMLLIElement>>("li"),
-            styleAnchor: styleComponent<React.AnchorHTMLAttributes<HTMLAnchorElement>>("a"),
-            styleInput: styleComponent<React.InputHTMLAttributes<HTMLInputElement>>("input"),
-            styleTextArea: styleComponent<React.TextareaHTMLAttributes<HTMLTextAreaElement>>("textarea"),
-            styleParagraph: styleComponent<React.HTMLAttributes<HTMLParagraphElement>>("p"),
-            styleLabel: styleComponent<React.LabelHTMLAttributes<HTMLLabelElement>>("label"),
-            styleMain: styleComponent<React.HTMLAttributes<HTMLMainElement>>("main"),
-            styleIFrame: styleComponent<React.IframeHTMLAttributes<HTMLIFrameElement>>("iframe"),
-            styleNav: styleComponent<React.HTMLAttributes<HTMLElement>>("nav"),
+            styleDiv: styleComponent<React.HTMLAttributes<HTMLDivElement>>('div'),
+            styleSpan: styleComponent<React.HTMLAttributes<HTMLSpanElement>>('span'),
+            styleHeader: styleComponent<React.HTMLAttributes<HTMLElement>>('header'),
+            styleFooter: styleComponent<React.HTMLAttributes<HTMLElement>>('footer'),
+            styleButton: styleComponent<React.ButtonHTMLAttributes<HTMLButtonElement>>('button'),
+            styleUlist: styleComponent<React.HTMLAttributes<HTMLUListElement>>('ul'),
+            styleLi: styleComponent<React.LiHTMLAttributes<HTMLLIElement>>('li'),
+            styleAnchor: styleComponent<React.AnchorHTMLAttributes<HTMLAnchorElement>>('a'),
+            styleInput: styleComponent<React.InputHTMLAttributes<HTMLInputElement>>('input'),
+            styleTextArea: styleComponent<React.TextareaHTMLAttributes<HTMLTextAreaElement>>('textarea'),
+            styleParagraph: styleComponent<React.HTMLAttributes<HTMLParagraphElement>>('p'),
+            styleLabel: styleComponent<React.LabelHTMLAttributes<HTMLLabelElement>>('label'),
+            styleMain: styleComponent<React.HTMLAttributes<HTMLMainElement>>('main'),
+            styleIFrame: styleComponent<React.IframeHTMLAttributes<HTMLIFrameElement>>('iframe'),
+            styleNav: styleComponent<React.HTMLAttributes<HTMLElement>>('nav'),
             //SVG stylers
-            styleSvg: styleComponent<React.SVGAttributes<SVGSVGElement>>("svg"),
-            styleG: styleComponent<React.SVGAttributes<SVGGElement>>("g"),
-            styleRect: styleComponent<React.SVGAttributes<SVGRectElement>>("rect"),
-            styleCircle: styleComponent<React.SVGAttributes<SVGCircleElement>>("circle"),
-            styleLine: styleComponent<React.SVGAttributes<SVGLineElement>>("line"),
-            stylePath: styleComponent<React.SVGAttributes<SVGPathElement>>("path")
+            styleSvg: styleComponent<React.SVGAttributes<SVGSVGElement>>('svg'),
+            styleG: styleComponent<React.SVGAttributes<SVGGElement>>('g'),
+            styleRect: styleComponent<React.SVGAttributes<SVGRectElement>>('rect'),
+            styleCircle: styleComponent<React.SVGAttributes<SVGCircleElement>>('circle'),
+            styleLine: styleComponent<React.SVGAttributes<SVGLineElement>>('line'),
+            stylePath: styleComponent<React.SVGAttributes<SVGPathElement>>('path')
         };
     };
 
