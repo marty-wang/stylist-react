@@ -108,6 +108,8 @@ const styledComponentFactory = <TScopedThemeVars>(
         }
     };
 
+    (<any>StyledComponent).displayName = styledComponentName;
+
     return StyledComponent;
 };
 
