@@ -11,7 +11,8 @@
     },
     "scripts": {
         "start": "node tools/devServer.js",
-        "build": "rimraf dist && webpack --config webpack.lib.config.js --mode production"
+        "build": "rimraf dist && webpack --config webpack.lib.config.js --mode production",
+        "prepublish": "npm run build"
     },
     "typings": "./dist/stylist.d.ts",
     "main": "./dist/stylist.js",
