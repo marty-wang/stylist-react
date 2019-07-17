@@ -187,6 +187,10 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
         };
     };
 
+    const getScopedTheme = (scope: keyof ReturnType<typeof buildTheme>) => {
+        return {...currentTheme[scope]};
+    }
+
     const setTheme = (themeConfig: TThemeConfig) => {
         const theme = buildTheme(themeConfig);
         const valueTable = createThemeValueTable(namespace, theme);
@@ -212,6 +216,7 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
     return {
         getStylist,
         setTheme,
+        getScopedTheme,
         devHotReloadTheme
     };
 };
