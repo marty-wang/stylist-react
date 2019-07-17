@@ -187,9 +187,11 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
         };
     };
 
-    const getScopedTheme = <T extends keyof ReturnType<typeof buildTheme>>(scope: T): ReturnType<typeof buildTheme>[T] => {
-        return {...currentTheme[scope]};
-    }
+    const getScopedTheme = <T extends keyof ReturnType<typeof buildTheme>>(
+        scope: T
+    ): Readonly<ReturnType<typeof buildTheme>[T]> => {
+        return { ...currentTheme[scope] };
+    };
 
     const setTheme = (themeConfig: TThemeConfig) => {
         const theme = buildTheme(themeConfig);
