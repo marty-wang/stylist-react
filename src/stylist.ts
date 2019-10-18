@@ -171,14 +171,14 @@ const styledComponentFactory1 = <TScopedThemeVars>(
         }
 
         public componentDidMount() {
-            this._updateVars();
+            this.updateVars();
         }
 
         public componentDidUpdate() {
-            this._updateVars();
+            this.updateVars();
         }
 
-        private _updateVars() {
+        public updateVars() {
             const elm = ReactDOM.findDOMNode(this) as HTMLElement;
 
             if (!elm) {
