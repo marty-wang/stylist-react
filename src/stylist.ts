@@ -3,6 +3,7 @@
  */
 
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { keyframes, style, types } from 'typestyle';
 import { applyTheme, createThemeValueTable, createThemeVars, endsWith, pluckExt, Theme } from './utils';
 
@@ -13,6 +14,10 @@ type KeyFrames = types.KeyFrames;
 type ReactComponent<P> = React.StatelessComponent<P> | React.ComponentClass<P>;
 type StylableComponent<T> = keyof React.ReactHTML | ReactComponent<T> | keyof React.ReactSVG;
 type DynamicCss<TProps, TVars> = (
+    props: Readonly<TProps>,
+    themeVars: TVars
+) => NestedCSSProperties | ReadonlyArray<NestedCSSProperties>;
+type DynamicCss1<TProps, TVars> = (
     props: Readonly<TProps>,
     themeVars: TVars
 ) => NestedCSSProperties | ReadonlyArray<NestedCSSProperties>;
@@ -113,6 +118,84 @@ const styledComponentFactory = <TScopedThemeVars>(
     return StyledComponent;
 };
 
+const styledComponentFactory1 = <TScopedThemeVars>(
+    getClassName: GetClassName<TScopedThemeVars>,
+    scopedThemeVars: TScopedThemeVars
+) => <TProps extends { className?: string }>(Component: StylableComponent<TProps>) => <
+    TCustomProps,
+    TVars extends string
+>(
+    styledComponentName: string,
+    css: StaticCss<TScopedThemeVars>,
+    vars: Record<TVars, (props: StyledComponentProps<TProps, TCustomProps>) => string | number | boolean>,
+    getCss?: DynamicCss1<Record<TVars, string>, TScopedThemeVars>
+) => {
+    if (typeof css === 'function') {
+        css = css(scopedThemeVars);
+    }
+
+    const buildVarKey = (k: string) => `--${k}`;
+
+    const staticCssArray = getStaticCssArrayCopy<TScopedThemeVars>(Component).concat(css);
+
+    const varNames = {} as Record<string, string>;
+
+    Object.keys(vars).forEach(vKey => {
+        varNames[vKey] = `var(${buildVarKey(vKey)})`;
+    });
+
+    const dynamicCssArray = getDynamicCssArrayCopy(Component)
+        .concat(getCss && partialRight(getCss, scopedThemeVars))
+        .filter(fn => !!fn);
+
+    const cssClassName = getClassName(
+        styledComponentName,
+        ...staticCssArray,
+        ...dynamicCssArray.map(fn => fn(varNames, scopedThemeVars))
+    );
+
+    const isTargetStyledComponent = isStyledComponent(Component);
+
+    const StyledComponent = class extends React.Component<StyledComponentProps<TProps, TCustomProps>> {
+        public static [staticCssField] = staticCssArray;
+        public static [dynamicCssField] = dynamicCssArray;
+
+        public render() {
+            const { customProps = <TCustomProps>{}, originalRef, ...props } = <any>this.props;
+
+            return React.createElement(Component, {
+                ...props,
+                ...(isTargetStyledComponent ? { originalRef } : { ref: originalRef }),
+                className: joinClassNames(cssClassName, this.props.className)
+            });
+        }
+
+        public componentDidMount() {
+            this._updateVars();
+        }
+
+        public componentDidUpdate() {
+            this._updateVars();
+        }
+
+        private _updateVars() {
+            const elm = ReactDOM.findDOMNode(this) as HTMLElement;
+
+            if (!elm) {
+                throw new Error(`Cannot find the root element for the styled component '${styledComponentName}'.`);
+            }
+
+            Object.keys(vars).forEach((vKey: keyof typeof vars) => {
+                elm.style.setProperty(buildVarKey(vKey), `${vars[vKey](this.props)}`);
+            });
+        }
+    };
+
+    (<any>StyledComponent).displayName = styledComponentName;
+
+    return StyledComponent;
+};
+
 export const important = (cssProps: CSSProperties): CSSProperties => {
     const suffix = '!important';
 
@@ -147,6 +230,7 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
         const getClassName = classNameFactory(scope, scopedThemeVars);
         const getAnimationName = animationNameFactory(scopedThemeVars);
         const styleComponent = styledComponentFactory(getClassName, scopedThemeVars);
+        const styleComponent1 = styledComponentFactory1(getClassName, scopedThemeVars);
 
         const ScopedThemeConsumer = class extends React.Component<{
             children: (themeVars: typeof scopedThemeVars) => React.ReactNode;
@@ -183,7 +267,11 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
             styleRect: styleComponent<React.SVGAttributes<SVGRectElement>>('rect'),
             styleCircle: styleComponent<React.SVGAttributes<SVGCircleElement>>('circle'),
             styleLine: styleComponent<React.SVGAttributes<SVGLineElement>>('line'),
-            stylePath: styleComponent<React.SVGAttributes<SVGPathElement>>('path')
+            stylePath: styleComponent<React.SVGAttributes<SVGPathElement>>('path'),
+
+            // 1
+            styleComponent1,
+            styleAnchor1: styleComponent1<React.AnchorHTMLAttributes<HTMLAnchorElement>>('a')
         };
     };
 
