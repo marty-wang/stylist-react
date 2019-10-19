@@ -1,29 +1,29 @@
-"use strict";
+'use strict';
 
-const path = require("path");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const path = require('path');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
-    devtool: "source-map",
+    devtool: 'source-map',
 
     resolve: {
-        extensions: [".webpack.js", ".web.js", ".ts", ".js"],
-        modules: [path.resolve("."), "node_modules"]
+        extensions: ['.webpack.js', '.web.js', '.ts', '.js'],
+        modules: [path.resolve('.'), 'node_modules']
     },
 
     module: {
         rules: [
             {
-                enforce: "pre",
+                enforce: 'pre',
                 test: /\.js$/,
-                loader: "source-map-loader",
-                exclude: path.resolve(__dirname, "node_modules")
+                loader: 'source-map-loader',
+                exclude: path.resolve(__dirname, 'node_modules')
             },
             {
-                enforce: "pre",
+                enforce: 'pre',
                 test: /\.tsx?$/,
-                loader: "tslint-loader",
-                exclude: [path.resolve(__dirname, "node_modules")],
+                loader: 'tslint-loader',
+                exclude: [path.resolve(__dirname, 'node_modules')],
                 options: {
                     emitErrors: true,
                     failOnHint: true
@@ -31,30 +31,35 @@ module.exports = {
             },
             {
                 test: /\.tsx?$/,
-                loader: "ts-loader",
+                loader: 'ts-loader',
                 options: {
-                    configFile: path.join(__dirname, "./tsconfig.lib.json")
+                    configFile: path.join(__dirname, './tsconfig.lib.json')
                 },
-                exclude: path.resolve(__dirname, "node_modules")
+                exclude: path.resolve(__dirname, 'node_modules')
             }
         ]
     },
 
-    entry: "./src/stylist.ts",
+    entry: './src/stylist.ts',
+
+    optimization: {
+        minimize: false
+    },
 
     output: {
-        path: path.join(__dirname, "dist"),
-        libraryTarget: "commonjs",
-        filename: "stylist.js"
+        path: path.join(__dirname, 'dist'),
+        libraryTarget: 'commonjs',
+        filename: 'stylist.js'
     },
 
     externals: {
-        react: "react"
+        react: 'React',
+        'react-dom': 'ReactDOM'
     },
 
     plugins: [
         new BundleAnalyzerPlugin({
-            analyzerMode: "static",
+            analyzerMode: 'static',
             openAnalyzer: false
         })
     ]
