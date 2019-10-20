@@ -53,8 +53,8 @@ module.exports = {
     },
 
     externals: {
-        react: 'React',
-        'react-dom': 'ReactDOM'
+        react: { commonjs: 'react' },
+        'react-dom': { commonjs: 'react-dom' }
     },
 
     plugins: [

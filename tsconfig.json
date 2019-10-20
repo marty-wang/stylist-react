@@ -3,6 +3,7 @@
         "sourceMap": true,
         "noImplicitAny": true,
         "module": "commonjs",
+        "moduleResolution": "node",
         "baseUrl": ".",
         "target": "es5",
         "jsx": "react",
