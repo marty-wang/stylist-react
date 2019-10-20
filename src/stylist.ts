@@ -130,11 +130,10 @@ const styledComponentFactory = <TScopedThemeVars>(
     return StyledComponent;
 };
 
-const styledComponentFactory1 = <TScopedThemeVars>(getClassName: GetClassName1, scopedThemeVars: TScopedThemeVars) => <
-    TProps extends { className?: string }
->(
-    Component: StylableComponent<TProps>
-) => <TVars extends string>(
+const styledComponentFactory$V2$ = <TScopedThemeVars>(
+    getClassName: GetClassName1,
+    scopedThemeVars: TScopedThemeVars
+) => <TProps extends { className?: string }>(Component: StylableComponent<TProps>) => <TVars extends string>(
     styledComponentName: string,
     css: StaticCss1<TScopedThemeVars, Record<TVars, string>>,
     vars?: Record<TVars, string>
@@ -240,7 +239,7 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
         const getClassName = classNameFactory(scope, scopedThemeVars);
         const getAnimationName = animationNameFactory(scopedThemeVars);
         const styleComponent = styledComponentFactory(getClassName, scopedThemeVars);
-        const styleComponent1 = styledComponentFactory1(getClassName, scopedThemeVars);
+        const styleComponent$V2$ = styledComponentFactory$V2$(getClassName, scopedThemeVars);
 
         const ScopedThemeConsumer = class extends React.Component<{
             children: (themeVars: typeof scopedThemeVars) => React.ReactNode;
@@ -280,8 +279,8 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
             stylePath: styleComponent<React.SVGAttributes<SVGPathElement>>('path'),
 
             // 1
-            styleComponent1,
-            styleAnchor1: styleComponent1<React.AnchorHTMLAttributes<HTMLAnchorElement>>('a')
+            styleComponent$V2$,
+            styleAnchor$V2$: styleComponent$V2$<React.AnchorHTMLAttributes<HTMLAnchorElement>>('a')
         };
     };
 

@@ -2,7 +2,7 @@ import { getStylist } from 'demo/themes/stylist';
 import * as React from 'react';
 import { ThemeSelector } from './ThemeSelector';
 
-const { styleDiv, styleComponent, styleAnchor1, styleComponent1 } = getStylist('App');
+const { styleDiv, styleComponent, styleAnchor$V2$, styleComponent$V2$ } = getStylist('App');
 
 const Root = styleDiv('Root', theme => ({
     height: '100vh',
@@ -15,11 +15,11 @@ const Root1 = styleComponent(Root)('Root1', {
     fontSize: 32
 });
 
-const Link = styleAnchor1('Link', {
+const Link = styleAnchor$V2$('Link', {
     fontSize: 48
 });
 
-const Link2 = styleComponent1(Link)(
+const Link2 = styleComponent$V2$(Link)(
     'Link2',
     (_, vars) => ({
         color: 'white',
@@ -30,7 +30,7 @@ const Link2 = styleComponent1(Link)(
     { a: '' }
 );
 
-const Link3 = styleComponent1(Link2)(
+const Link3 = styleComponent$V2$(Link2)(
     'Link3',
     (theme, y) => ({
         opacity: 0.5,
