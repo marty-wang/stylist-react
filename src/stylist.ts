@@ -253,6 +253,7 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
             ScopedThemeConsumer,
             getClassName,
             getAnimationName,
+
             styleComponent,
             //HTML stylers
             styleDiv: styleComponent<React.HTMLAttributes<HTMLDivElement>>('div'),
@@ -278,9 +279,30 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
             styleLine: styleComponent<React.SVGAttributes<SVGLineElement>>('line'),
             stylePath: styleComponent<React.SVGAttributes<SVGPathElement>>('path'),
 
-            // 1
+            // V2
             styleComponent$V2$,
-            styleAnchor$V2$: styleComponent$V2$<React.AnchorHTMLAttributes<HTMLAnchorElement>>('a')
+            styleDiv$V2$: styleComponent<React.HTMLAttributes<HTMLDivElement>>('div'),
+            styleSpan$V2$: styleComponent<React.HTMLAttributes<HTMLSpanElement>>('span'),
+            styleHeader$V2$: styleComponent<React.HTMLAttributes<HTMLElement>>('header'),
+            styleFooter$V2$: styleComponent<React.HTMLAttributes<HTMLElement>>('footer'),
+            styleButton$V2$: styleComponent<React.ButtonHTMLAttributes<HTMLButtonElement>>('button'),
+            styleUlist$V2$: styleComponent<React.HTMLAttributes<HTMLUListElement>>('ul'),
+            styleLi$V2$: styleComponent<React.LiHTMLAttributes<HTMLLIElement>>('li'),
+            styleAnchor$V2$: styleComponent<React.AnchorHTMLAttributes<HTMLAnchorElement>>('a'),
+            styleInput$V2$: styleComponent<React.InputHTMLAttributes<HTMLInputElement>>('input'),
+            styleTextArea$V2$: styleComponent<React.TextareaHTMLAttributes<HTMLTextAreaElement>>('textarea'),
+            styleParagraph$V2$: styleComponent<React.HTMLAttributes<HTMLParagraphElement>>('p'),
+            styleLabel$V2$: styleComponent<React.LabelHTMLAttributes<HTMLLabelElement>>('label'),
+            styleMain$V2$: styleComponent<React.HTMLAttributes<HTMLMainElement>>('main'),
+            styleIFrame$V2$: styleComponent<React.IframeHTMLAttributes<HTMLIFrameElement>>('iframe'),
+            styleNav$V2$: styleComponent<React.HTMLAttributes<HTMLElement>>('nav'),
+            //SVG stylers
+            styleSvg$V2$: styleComponent<React.SVGAttributes<SVGSVGElement>>('svg'),
+            styleG$V2$: styleComponent<React.SVGAttributes<SVGGElement>>('g'),
+            styleRect$V2$: styleComponent<React.SVGAttributes<SVGRectElement>>('rect'),
+            styleCircle$V2$: styleComponent<React.SVGAttributes<SVGCircleElement>>('circle'),
+            styleLine$V2$: styleComponent<React.SVGAttributes<SVGLineElement>>('line'),
+            stylePath$V2$: styleComponent<React.SVGAttributes<SVGPathElement>>('path')
         };
     };
 
