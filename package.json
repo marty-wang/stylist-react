@@ -1,6 +1,6 @@
 {
     "name": "stylist-react",
-    "version": "2.0.0-beta.1",
+    "version": "2.0.0-beta.2",
     "description": "theme first, fully static styled component for react",
     "license": "MIT",
     "author": {
@@ -23,6 +23,10 @@
     ],
     "dependencies": {
         "typestyle": "^2.0.1"
+    },
+    "peerDependencies": {
+        "react": "^16.0.0",
+        "react-dom": "^16.0.0"
     },
     "devDependencies": {
         "@types/react": "^16.0.15",
