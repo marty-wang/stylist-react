@@ -25,6 +25,7 @@ type ObjectOrCallback<TArgs, TO> = TO | ((args: TArgs) => TO);
 type StaticCss<TVars> = ObjectOrCallback<TVars, NestedCSSProperties | ReadonlyArray<NestedCSSProperties>>;
 type GetClassName<TVars> = (debugName: string, ...cssProps: StaticCss<TVars>[]) => string;
 type StyledComponentProps<TProps, TCustomProps> = TProps & { customProps?: TCustomProps; originalRef?: React.Ref<{}> };
+type StyledComponentProps1<TProps, TVars> = TProps & { vars?: TVars; originalRef?: React.Ref<{}> };
 
 const staticCssField = '__sc_static_css';
 const dynamicCssField = '__sc_dynamic_css';
@@ -118,21 +119,22 @@ const styledComponentFactory = <TScopedThemeVars>(
     return StyledComponent;
 };
 
+type VarsOf<T> = T extends { vars?: Record<infer U, () => string | number> } ? U : never;
+
 const styledComponentFactory1 = <TScopedThemeVars>(
     getClassName: GetClassName<TScopedThemeVars>,
     scopedThemeVars: TScopedThemeVars
-) => <TProps extends { className?: string }>(Component: StylableComponent<TProps>) => <
-    TCustomProps,
-    TVars extends string
->(
+) => <TProps extends { className?: string }>(Component: StylableComponent<TProps>) => <TVars extends string>(
     styledComponentName: string,
     css: StaticCss<TScopedThemeVars>,
-    vars: Record<TVars, (props: StyledComponentProps<TProps, TCustomProps>) => string | number | boolean>,
+    vars?: Record<TVars, string>,
     getCss?: DynamicCss1<Record<TVars, string>, TScopedThemeVars>
 ) => {
     if (typeof css === 'function') {
         css = css(scopedThemeVars);
     }
+
+    vars = vars || ({} as Record<TVars, string>);
 
     const buildVarKey = (k: string) => `--${k}`;
 
@@ -140,8 +142,8 @@ const styledComponentFactory1 = <TScopedThemeVars>(
 
     const varNames = {} as Record<string, string>;
 
-    Object.keys(vars).forEach(vKey => {
-        varNames[vKey] = `var(${buildVarKey(vKey)})`;
+    Object.keys(vars).forEach((vKey: keyof typeof vars) => {
+        varNames[vKey] = `var(${buildVarKey(vars[vKey] || vKey)})`;
     });
 
     const dynamicCssArray = getDynamicCssArrayCopy(Component)
@@ -156,15 +158,18 @@ const styledComponentFactory1 = <TScopedThemeVars>(
 
     const isTargetStyledComponent = isStyledComponent(Component);
 
-    const StyledComponent = class extends React.Component<StyledComponentProps<TProps, TCustomProps>> {
+    const StyledComponent = class extends React.Component<
+        StyledComponentProps1<TProps, Record<TVars | VarsOf<TProps>, string | number>>
+    > {
         public static [staticCssField] = staticCssArray;
         public static [dynamicCssField] = dynamicCssArray;
 
         public render() {
-            const { customProps = <TCustomProps>{}, originalRef, ...props } = <any>this.props;
+            const { vars, originalRef, ...props } = <any>this.props;
 
             return React.createElement(Component, {
                 ...props,
+                ...(isTargetStyledComponent ? { vars } : {}),
                 ...(isTargetStyledComponent ? { originalRef } : { ref: originalRef }),
                 className: joinClassNames(cssClassName, this.props.className)
             });
@@ -186,7 +191,7 @@ const styledComponentFactory1 = <TScopedThemeVars>(
             }
 
             Object.keys(vars).forEach((vKey: keyof typeof vars) => {
-                elm.style.setProperty(buildVarKey(vKey), `${vars[vKey](this.props)}`);
+                elm.style.setProperty(buildVarKey(vKey), `${this.props.vars[vKey]}`);
             });
         }
     };
