@@ -6,6 +6,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { keyframes, style, types } from 'typestyle';
 import { applyTheme, createThemeValueTable, createThemeVars, endsWith, pluckExt, Theme } from './utils';
+import { getEventEmitter } from './eventEmitter';
 
 export type CSSProperties = types.CSSProperties;
 export type NestedCSSProperties = types.NestedCSSProperties;
@@ -313,6 +314,8 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
         return { ...currentTheme[scope] };
     };
 
+    const eventEmitter = getEventEmitter();
+
     const setTheme = (themeConfig: TThemeConfig) => {
         const theme = buildTheme(themeConfig);
         const valueTable = createThemeValueTable(namespace, theme);
@@ -328,17 +331,16 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
                 currentTheme[scope][name] = scopedTheme[name];
             });
         });
+
+        eventEmitter.emit('themeChanged');
     };
 
-    const devHotReloadTheme = (themeConfig: TThemeConfig, build: (config: TThemeConfig) => TTheme) => {
-        buildTheme = build;
-        setTheme(themeConfig);
-    };
+    const onThemeChanged = (listener: () => void) => eventEmitter.on('themeChanged', listener);
 
     return {
         getStylist,
         setTheme,
         getScopedTheme,
-        devHotReloadTheme
+        onThemeChanged
     };
 };

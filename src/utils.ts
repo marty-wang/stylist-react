@@ -47,9 +47,9 @@ export const applyTheme = (tagId: string, themeValueTable: Record<string, string
     let styleTag = document.getElementById(tagId);
 
     if (!styleTag) {
-        styleTag = document.createElement("style");
+        styleTag = document.createElement('style');
         styleTag.id = tagId;
-        styleTag.setAttribute("type", "text/css");
+        styleTag.setAttribute('type', 'text/css');
         document.head.appendChild(styleTag);
     }
 
@@ -58,7 +58,31 @@ export const applyTheme = (tagId: string, themeValueTable: Record<string, string
             r.push(`${k}:${themeValueTable[k]}`);
             return r;
         }, [])
-        .join(";");
+        .join(';');
 
     styleTag.innerText = `:root {${themeValueStr}}`;
+};
+
+type Predicate<T> = (item: T, idx: number) => boolean;
+
+const firstIndex = <T>(array: ReadonlyArray<T>, predicate: Predicate<T>, fromIndex = 0) => {
+    const len = array.length;
+
+    for (let i = fromIndex; i < len; i++) {
+        if (predicate(array[i], i)) {
+            return i;
+        }
+    }
+
+    return -1;
+};
+
+export const remove = <T>(array: T[], predicate: Predicate<T>) => {
+    const idx = firstIndex(array, predicate);
+
+    if (idx > -1) {
+        return array.splice(idx, 1);
+    }
+
+    return [];
 };
