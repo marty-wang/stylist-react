@@ -6,7 +6,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { keyframes, style, types } from 'typestyle';
 import { applyTheme, createThemeValueTable, createThemeVars, endsWith, pluckExt, Theme } from './utils';
-import { getEventEmitter } from './eventEmitter';
+import { getEventEmitter, EventEmitter } from './eventEmitter';
 
 export type CSSProperties = types.CSSProperties;
 export type NestedCSSProperties = types.NestedCSSProperties;
@@ -33,11 +33,13 @@ type GetClassName1 = (
     debugName: string,
     ...cssProps: (NestedCSSProperties | ReadonlyArray<NestedCSSProperties>)[]
 ) => string;
-type StyledComponentProps1<TProps, TVars> = TProps & { cssVars?: TVars; originalRef?: React.Ref<{}> };
+type StyledComponentProps1<TProps, TCustomProps> = TProps & { customProps?: TCustomProps; originalRef?: React.Ref<{}> };
 
 const staticCssField = '__sc_static_css';
 const dynamicCssField = '__sc_dynamic_css';
 const cssSetFlag = '__sc_css_set';
+
+const THEME_CHANGED_EVENT_NAME = 'themeChanged';
 
 const classNameFactory = <TScopedThemeVars>(scope: string, scopedThemeVars: TScopedThemeVars) => (
     debugName: string,
@@ -132,21 +134,36 @@ const styledComponentFactory = <TScopedThemeVars>(
     return StyledComponent;
 };
 
-const styledComponentFactory$V2$ = <TScopedThemeVars>(
+type DynamicCssOptions = Partial<{
+    forceUpdateAfterThemeChanged: boolean;
+}>;
+
+const styledComponentFactory$V2$ = <TScopedThemeVars, TScopedThemeValues>(
     getClassName: GetClassName1,
-    scopedThemeVars: TScopedThemeVars
+    scopedThemeVars: TScopedThemeVars,
+    scopedThemeValues: TScopedThemeValues,
+    eventEmitter: EventEmitter
 ) => <TProps extends { className?: string }>(Component: StylableComponent<TProps>) => <
     TCssVars extends string,
-    TParams
+    TCustomProps
 >(
     styledComponentName: string,
     css: StaticCss1<TScopedThemeVars, Record<TCssVars, string>>,
-    cssVars?: Record<TCssVars, string>,
-    mapper?: (params: TParams) => Record<TCssVars, string | number>
+    dynamicCss?: {
+        cssVars: Record<TCssVars, string>;
+        cssVarsSetter: (
+            customProps: TCustomProps,
+            scopedThemeValues: TScopedThemeValues
+        ) => Record<TCssVars, string | number>;
+        options?: DynamicCssOptions;
+    }
 ) => {
-    const hasDynamicCss = !!cssVars;
+    const hasDynamicCss = !!dynamicCss;
 
-    cssVars = cssVars || ({} as Record<TCssVars, string>);
+    const dynamicCssOptions: DynamicCssOptions =
+        hasDynamicCss && dynamicCss.options ? dynamicCss.options : { forceUpdateAfterThemeChanged: false };
+
+    const cssVars = (dynamicCss && dynamicCss.cssVars) || ({} as Record<TCssVars, string>);
 
     const buildVarName = (vKey: keyof typeof cssVars) => `--${cssVars[vKey] || vKey}`;
 
@@ -171,22 +188,30 @@ const styledComponentFactory$V2$ = <TScopedThemeVars>(
 
     const isTargetStyledComponent = isStyledComponent1(Component);
 
-    const StyledComponent = class extends React.Component<StyledComponentProps1<TProps, TParams>> {
+    const StyledComponent = class extends React.Component<StyledComponentProps1<TProps, TCustomProps>> {
         public static [staticCssField] = staticCssArray;
 
         public render() {
-            const { cssVars, originalRef, ...props } = <any>this.props;
+            const { customProps = {}, originalRef, ...props } = <any>this.props;
 
             return React.createElement(Component, {
                 ...props,
-                ...(isTargetStyledComponent ? { cssVars } : {}),
+                ...(isTargetStyledComponent ? { customProps } : {}),
                 ...(isTargetStyledComponent ? { originalRef } : { ref: originalRef }),
                 className: joinClassNames(cssClassName, this.props.className)
             });
         }
 
         public componentDidMount() {
+            if (dynamicCssOptions.forceUpdateAfterThemeChanged) {
+                this._themeChangedDispoer = eventEmitter.on(THEME_CHANGED_EVENT_NAME, () => this.updateVars());
+            }
+
             this.updateVars();
+        }
+
+        public componentWillUnmount() {
+            this._themeChangedDispoer();
         }
 
         public componentDidUpdate() {
@@ -194,20 +219,24 @@ const styledComponentFactory$V2$ = <TScopedThemeVars>(
         }
 
         public updateVars() {
+            if (!hasDynamicCss) {
+                return;
+            }
+
             const elm = ReactDOM.findDOMNode(this) as HTMLElement;
 
             if (!elm) {
                 throw new Error(`Cannot find the root element for the styled component '${styledComponentName}'.`);
             }
 
-            if (hasDynamicCss) {
-                const f = mapper(this.props.cssVars);
+            const vars = dynamicCss.cssVarsSetter(this.props.customProps, scopedThemeValues);
 
-                Object.keys(cssVars).forEach((vKey: keyof typeof cssVars) => {
-                    elm.style.setProperty(buildVarName(vKey), `${f[vKey]}`);
-                });
-            }
+            Object.keys(cssVars).forEach((vKey: keyof typeof cssVars) => {
+                elm.style.setProperty(buildVarName(vKey), `${vars[vKey]}`);
+            });
         }
+
+        private _themeChangedDispoer = () => {};
     };
 
     (<any>StyledComponent).displayName = styledComponentName;
@@ -244,12 +273,19 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
     const themeValueTable = createThemeValueTable(namespace, currentTheme);
     applyTheme(namespace, themeValueTable);
 
+    const eventEmitter = getEventEmitter();
+
     const getStylist = <TScope extends string>(scope: TScope) => {
         const scopedThemeVars = ensureDefined(pluckExt(themeVars, scope));
         const getClassName = classNameFactory(scope, scopedThemeVars);
         const getAnimationName = animationNameFactory(scopedThemeVars);
         const styleComponent = styledComponentFactory(getClassName, scopedThemeVars);
-        const styleComponent$V2$ = styledComponentFactory$V2$(getClassName, scopedThemeVars);
+        const styleComponent$V2$ = styledComponentFactory$V2$(
+            getClassName,
+            scopedThemeVars,
+            currentTheme[scope],
+            eventEmitter
+        );
 
         const ScopedThemeConsumer = class extends React.Component<{
             children: (themeVars: typeof scopedThemeVars) => React.ReactNode;
@@ -322,8 +358,6 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
         return { ...currentTheme[scope] };
     };
 
-    const eventEmitter = getEventEmitter();
-
     const setTheme = (themeConfig: TThemeConfig) => {
         const theme = buildTheme(themeConfig);
         const valueTable = createThemeValueTable(namespace, theme);
@@ -340,10 +374,10 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
             });
         });
 
-        eventEmitter.emit('themeChanged');
+        eventEmitter.emit(THEME_CHANGED_EVENT_NAME);
     };
 
-    const onThemeChanged = (listener: () => void) => eventEmitter.on('themeChanged', listener);
+    const onThemeChanged = (listener: () => void) => eventEmitter.on(THEME_CHANGED_EVENT_NAME, listener);
 
     return {
         getStylist,

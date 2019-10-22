@@ -1,12 +1,16 @@
-import { ThemeConfig } from "demo/themes/themeConfig";
+import { ThemeConfig } from 'demo/themes/themeConfig';
 
 export const buildTheme = (themeConfig: ThemeConfig) => {
-    const { backgroundColor, foregroundColor } = themeConfig;
+    const { backgroundColor, foregroundColor, foo } = themeConfig;
 
     return {
         App: {
             backgroundColor,
-            foregroundColor
+            foregroundColor,
+            foo
+        },
+        Something: {
+            bar: foo
         }
     };
 };

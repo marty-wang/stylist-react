@@ -2,16 +2,16 @@ import { getStylist } from 'demo/themes/stylist';
 import * as React from 'react';
 import { ThemeSelector } from './ThemeSelector';
 
-const { styleDiv, styleComponent, styleAnchor$V2$, styleComponent$V2$ } = getStylist('App');
+const { styleDiv$V2$, styleAnchor$V2$, styleComponent$V2$ } = getStylist('App');
 
-const Root = styleDiv('Root', theme => ({
+const Root = styleDiv$V2$('Root', theme => ({
     height: '100vh',
     padding: '16px',
     background: theme.backgroundColor,
     color: theme.foregroundColor
 }));
 
-const Root1 = styleComponent(Root)('Root1', {
+const Root1 = styleComponent$V2$(Root)('Root1', {
     fontSize: 32
 });
 
@@ -27,11 +27,20 @@ const Link2 = styleComponent$V2$(Link)(
         background: cssVars.background,
         fontSize: 16
     }),
-    { background: '', foreground: '' },
-    (params: { foo: boolean }) => ({
-        background: params.foo ? 'blue' : 'red',
-        foreground: params.foo ? 'red' : 'blue'
-    })
+    {
+        cssVars: { background: '', foreground: '' },
+        cssVarsSetter: (props: { foo: boolean }, themeValues) => {
+            console.log(themeValues);
+
+            return {
+                background: props.foo ? 'blue' : 'red',
+                foreground: props.foo ? 'red' : 'blue'
+            };
+        },
+        options: {
+            forceUpdateAfterThemeChanged: true
+        }
+    }
 );
 
 const Link3 = styleComponent$V2$(Link2)(
@@ -46,14 +55,16 @@ const Link3 = styleComponent$V2$(Link2)(
             }
         }
     }),
-    { c: '', d: '' },
-    (params: { width: string; opacity: number }) => ({
-        c: params.width,
-        d: params.opacity
-    })
+    {
+        cssVars: { c: '', d: '' },
+        cssVarsSetter: (params: { width: string; opacity: number }) => ({
+            c: params.width,
+            d: params.opacity
+        })
+    }
 );
 
-const MyThemeSelector = styleComponent(ThemeSelector)('MyThemeSelector', {
+const MyThemeSelector = styleComponent$V2$(ThemeSelector)('MyThemeSelector', {
     margin: '16px'
 });
 
@@ -66,14 +77,14 @@ export class App extends React.Component {
                 <MyThemeSelector />
                 <Link>First link</Link>
                 <Link2
-                    cssVars={{
+                    customProps={{
                         foo: this.state.foo
                     }}
                 >
                     Hello World!
                 </Link2>
                 <Link3
-                    cssVars={{
+                    customProps={{
                         foo: true,
                         width: '10px',
                         opacity: 1

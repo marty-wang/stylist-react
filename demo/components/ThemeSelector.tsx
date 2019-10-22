@@ -1,13 +1,13 @@
-import * as React from "react";
-import { themeConfigs, ThemeName, switchTheme, getStylist } from "demo/themes/stylist";
+import * as React from 'react';
+import { themeConfigs, ThemeName, switchTheme, getStylist } from 'demo/themes/stylist';
 
-const { styleDiv } = getStylist("ThemeSelector");
+const { styleDiv$V2$ } = getStylist('ThemeSelector');
 
-const Root = styleDiv("Root", {
-    display: "flex",
+const Root = styleDiv$V2$('Root', {
+    display: 'flex',
     $nest: {
-        "& > *": {
-            marginRight: "8px"
+        '& > *': {
+            marginRight: '8px'
         }
     }
 });

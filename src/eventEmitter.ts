@@ -4,6 +4,8 @@ type Callback = (...args: any[]) => void;
 
 type Disposer = () => void;
 
+export type EventEmitter = ReturnType<typeof getEventEmitter>;
+
 export const getEventEmitter = () => {
     const table: Record<string, Callback[]> = {};
 
