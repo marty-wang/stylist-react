@@ -21,10 +21,10 @@ const Link = styleAnchor$V2$('Link', {
 
 const Link2 = styleComponent$V2$(Link)(
     'Link2',
-    (_, vars) => ({
+    (_, cssVars) => ({
         color: 'white',
         border: '1px solid black',
-        background: vars.a,
+        background: cssVars.a,
         fontSize: 16
     }),
     { a: '' }
@@ -32,12 +32,12 @@ const Link2 = styleComponent$V2$(Link)(
 
 const Link3 = styleComponent$V2$(Link2)(
     'Link3',
-    (theme, y) => ({
+    (theme, cssVars) => ({
         opacity: 0.5,
-        borderWidth: y.c,
+        borderWidth: cssVars.c,
         $nest: {
             '&:hover': {
-                opacity: y.d as any,
+                opacity: cssVars.d as any,
                 background: theme.backgroundColor
             }
         }
@@ -58,14 +58,14 @@ export class App extends React.Component {
                 <MyThemeSelector />
                 <Link>First link</Link>
                 <Link2
-                    vars={{
+                    cssVars={{
                         a: this.state.color
                     }}
                 >
                     Hello World!
                 </Link2>
                 <Link3
-                    vars={{
+                    cssVars={{
                         a: 'green',
                         c: '10px',
                         d: 1

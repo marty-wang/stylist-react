@@ -18,20 +18,21 @@ type DynamicCss<TProps, TVars> = (
     themeVars: TVars
 ) => NestedCSSProperties | ReadonlyArray<NestedCSSProperties>;
 type ObjectOrCallback<TArgs, TO> = TO | ((args: TArgs) => TO);
-type ObjectOrCallback1<TArgs, TArgs1, TO> = TO | ((args: TArgs, args1: TArgs1) => TO);
 type StaticCss<TVars> = ObjectOrCallback<TVars, NestedCSSProperties | ReadonlyArray<NestedCSSProperties>>;
+type GetClassName<TVars> = (debugName: string, ...cssProps: StaticCss<TVars>[]) => string;
+type StyledComponentProps<TProps, TCustomProps> = TProps & { customProps?: TCustomProps; originalRef?: React.Ref<{}> };
+
+type ObjectOrCallback1<TArgs, TArgs1, TO> = TO | ((args: TArgs, args1: TArgs1) => TO);
 type StaticCss1<TThemeVars, TVars> = ObjectOrCallback1<
     TThemeVars,
     TVars,
     NestedCSSProperties | ReadonlyArray<NestedCSSProperties>
 >;
-type GetClassName<TVars> = (debugName: string, ...cssProps: StaticCss<TVars>[]) => string;
 type GetClassName1 = (
     debugName: string,
     ...cssProps: (NestedCSSProperties | ReadonlyArray<NestedCSSProperties>)[]
 ) => string;
-type StyledComponentProps<TProps, TCustomProps> = TProps & { customProps?: TCustomProps; originalRef?: React.Ref<{}> };
-type StyledComponentProps1<TProps, TVars> = TProps & { vars?: TVars; originalRef?: React.Ref<{}> };
+type StyledComponentProps1<TProps, TVars> = TProps & { cssVars?: TVars; originalRef?: React.Ref<{}> };
 
 const staticCssField = '__sc_static_css';
 const dynamicCssField = '__sc_dynamic_css';
@@ -59,7 +60,7 @@ const animationNameFactory = <TScopedThemeVars>(scopedThemeVars: TScopedThemeVar
 
 const getStaticCssArrayCopy = <TVars>(Component: any): StaticCss<TVars>[] => (Component[staticCssField] || []).slice();
 
-const getStaticCssArrayCopy1 = <TThemeVars, TVars>(Component: any): StaticCss1<TThemeVars, TVars>[] =>
+const getStaticCssArrayCopy1 = <TThemeVars, TCssVars>(Component: any): StaticCss1<TThemeVars, TCssVars>[] =>
     (Component[staticCssField] || []).slice();
 
 const getDynamicCssArrayCopy = (Component: any): DynamicCss<{}, {}>[] => (Component[dynamicCssField] || []).slice();
@@ -133,22 +134,22 @@ const styledComponentFactory = <TScopedThemeVars>(
 const styledComponentFactory$V2$ = <TScopedThemeVars>(
     getClassName: GetClassName1,
     scopedThemeVars: TScopedThemeVars
-) => <TProps extends { className?: string }>(Component: StylableComponent<TProps>) => <TVars extends string>(
+) => <TProps extends { className?: string }>(Component: StylableComponent<TProps>) => <TCssVars extends string>(
     styledComponentName: string,
-    css: StaticCss1<TScopedThemeVars, Record<TVars, string>>,
-    vars?: Record<TVars, string>
+    css: StaticCss1<TScopedThemeVars, Record<TCssVars, string>>,
+    cssVars?: Record<TCssVars, string>
 ) => {
-    vars = vars || ({} as Record<TVars, string>);
+    cssVars = cssVars || ({} as Record<TCssVars, string>);
 
-    const buildVarKey = (vKey: keyof typeof vars) => `--${vars[vKey] || vKey}`;
+    const buildVarName = (vKey: keyof typeof cssVars) => `--${cssVars[vKey] || vKey}`;
 
     const varNames = {} as Record<string, string>;
 
-    Object.keys(vars).forEach((vKey: keyof typeof vars) => {
-        varNames[vKey] = `var(${buildVarKey(vKey)})`;
+    Object.keys(cssVars).forEach((vKey: keyof typeof cssVars) => {
+        varNames[vKey] = `var(${buildVarName(vKey)})`;
     });
 
-    const staticCssArray = getStaticCssArrayCopy1<TScopedThemeVars, Record<TVars, string>>(Component).concat(css);
+    const staticCssArray = getStaticCssArrayCopy1<TScopedThemeVars, Record<TCssVars, string>>(Component).concat(css);
 
     const cssClassName = getClassName(
         styledComponentName,
@@ -164,16 +165,16 @@ const styledComponentFactory$V2$ = <TScopedThemeVars>(
     const isTargetStyledComponent = isStyledComponent1(Component);
 
     const StyledComponent = class extends React.Component<
-        StyledComponentProps1<TProps, Record<TVars, string | number>>
+        StyledComponentProps1<TProps, Record<TCssVars, string | number>>
     > {
         public static [staticCssField] = staticCssArray;
 
         public render() {
-            const { vars, originalRef, ...props } = <any>this.props;
+            const { cssVars, originalRef, ...props } = <any>this.props;
 
             return React.createElement(Component, {
                 ...props,
-                ...(isTargetStyledComponent ? { vars } : {}),
+                ...(isTargetStyledComponent ? { cssVars } : {}),
                 ...(isTargetStyledComponent ? { originalRef } : { ref: originalRef }),
                 className: joinClassNames(cssClassName, this.props.className)
             });
@@ -194,8 +195,8 @@ const styledComponentFactory$V2$ = <TScopedThemeVars>(
                 throw new Error(`Cannot find the root element for the styled component '${styledComponentName}'.`);
             }
 
-            Object.keys(vars).forEach((vKey: keyof typeof vars) => {
-                elm.style.setProperty(buildVarKey(vKey), `${this.props.vars[vKey]}`);
+            Object.keys(cssVars).forEach((vKey: keyof typeof cssVars) => {
+                elm.style.setProperty(buildVarName(vKey), `${this.props.cssVars[vKey]}`);
             });
         }
     };
@@ -281,28 +282,28 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
 
             // V2
             styleComponent$V2$,
-            styleDiv$V2$: styleComponent<React.HTMLAttributes<HTMLDivElement>>('div'),
-            styleSpan$V2$: styleComponent<React.HTMLAttributes<HTMLSpanElement>>('span'),
-            styleHeader$V2$: styleComponent<React.HTMLAttributes<HTMLElement>>('header'),
-            styleFooter$V2$: styleComponent<React.HTMLAttributes<HTMLElement>>('footer'),
-            styleButton$V2$: styleComponent<React.ButtonHTMLAttributes<HTMLButtonElement>>('button'),
-            styleUlist$V2$: styleComponent<React.HTMLAttributes<HTMLUListElement>>('ul'),
-            styleLi$V2$: styleComponent<React.LiHTMLAttributes<HTMLLIElement>>('li'),
-            styleAnchor$V2$: styleComponent<React.AnchorHTMLAttributes<HTMLAnchorElement>>('a'),
-            styleInput$V2$: styleComponent<React.InputHTMLAttributes<HTMLInputElement>>('input'),
-            styleTextArea$V2$: styleComponent<React.TextareaHTMLAttributes<HTMLTextAreaElement>>('textarea'),
-            styleParagraph$V2$: styleComponent<React.HTMLAttributes<HTMLParagraphElement>>('p'),
-            styleLabel$V2$: styleComponent<React.LabelHTMLAttributes<HTMLLabelElement>>('label'),
-            styleMain$V2$: styleComponent<React.HTMLAttributes<HTMLMainElement>>('main'),
-            styleIFrame$V2$: styleComponent<React.IframeHTMLAttributes<HTMLIFrameElement>>('iframe'),
-            styleNav$V2$: styleComponent<React.HTMLAttributes<HTMLElement>>('nav'),
+            styleDiv$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLDivElement>>('div'),
+            styleSpan$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLSpanElement>>('span'),
+            styleHeader$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLElement>>('header'),
+            styleFooter$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLElement>>('footer'),
+            styleButton$V2$: styleComponent$V2$<React.ButtonHTMLAttributes<HTMLButtonElement>>('button'),
+            styleUlist$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLUListElement>>('ul'),
+            styleLi$V2$: styleComponent$V2$<React.LiHTMLAttributes<HTMLLIElement>>('li'),
+            styleAnchor$V2$: styleComponent$V2$<React.AnchorHTMLAttributes<HTMLAnchorElement>>('a'),
+            styleInput$V2$: styleComponent$V2$<React.InputHTMLAttributes<HTMLInputElement>>('input'),
+            styleTextArea$V2$: styleComponent$V2$<React.TextareaHTMLAttributes<HTMLTextAreaElement>>('textarea'),
+            styleParagraph$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLParagraphElement>>('p'),
+            styleLabel$V2$: styleComponent$V2$<React.LabelHTMLAttributes<HTMLLabelElement>>('label'),
+            styleMain$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLMainElement>>('main'),
+            styleIFrame$V2$: styleComponent$V2$<React.IframeHTMLAttributes<HTMLIFrameElement>>('iframe'),
+            styleNav$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLElement>>('nav'),
             //SVG stylers
-            styleSvg$V2$: styleComponent<React.SVGAttributes<SVGSVGElement>>('svg'),
-            styleG$V2$: styleComponent<React.SVGAttributes<SVGGElement>>('g'),
-            styleRect$V2$: styleComponent<React.SVGAttributes<SVGRectElement>>('rect'),
-            styleCircle$V2$: styleComponent<React.SVGAttributes<SVGCircleElement>>('circle'),
-            styleLine$V2$: styleComponent<React.SVGAttributes<SVGLineElement>>('line'),
-            stylePath$V2$: styleComponent<React.SVGAttributes<SVGPathElement>>('path')
+            styleSvg$V2$: styleComponent$V2$<React.SVGAttributes<SVGSVGElement>>('svg'),
+            styleG$V2$: styleComponent$V2$<React.SVGAttributes<SVGGElement>>('g'),
+            styleRect$V2$: styleComponent$V2$<React.SVGAttributes<SVGRectElement>>('rect'),
+            styleCircle$V2$: styleComponent$V2$<React.SVGAttributes<SVGCircleElement>>('circle'),
+            styleLine$V2$: styleComponent$V2$<React.SVGAttributes<SVGLineElement>>('line'),
+            stylePath$V2$: styleComponent$V2$<React.SVGAttributes<SVGPathElement>>('path')
         };
     };
 
