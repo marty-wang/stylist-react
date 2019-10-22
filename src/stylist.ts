@@ -204,14 +204,14 @@ const styledComponentFactory$V2$ = <TScopedThemeVars, TScopedThemeValues>(
 
         public componentDidMount() {
             if (dynamicCssOptions.forceUpdateAfterThemeChanged) {
-                this._themeChangedDispoer = eventEmitter.on(THEME_CHANGED_EVENT_NAME, () => this.updateVars());
+                this.themeChangedDispoer = eventEmitter.on(THEME_CHANGED_EVENT_NAME, () => this.updateVars());
             }
 
             this.updateVars();
         }
 
         public componentWillUnmount() {
-            this._themeChangedDispoer();
+            this.themeChangedDispoer();
         }
 
         public componentDidUpdate() {
@@ -236,7 +236,7 @@ const styledComponentFactory$V2$ = <TScopedThemeVars, TScopedThemeValues>(
             });
         }
 
-        private _themeChangedDispoer = () => {};
+        public themeChangedDispoer = () => {};
     };
 
     (<any>StyledComponent).displayName = styledComponentName;
