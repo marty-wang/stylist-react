@@ -22,12 +22,16 @@ const Link = styleAnchor$V2$('Link', {
 const Link2 = styleComponent$V2$(Link)(
     'Link2',
     (_, cssVars) => ({
-        color: 'white',
+        color: cssVars.foreground,
         border: '1px solid black',
-        background: cssVars.a,
+        background: cssVars.background,
         fontSize: 16
     }),
-    { a: '' }
+    { background: '', foreground: '' },
+    (params: { foo: boolean }) => ({
+        background: params.foo ? 'blue' : 'red',
+        foreground: params.foo ? 'red' : 'blue'
+    })
 );
 
 const Link3 = styleComponent$V2$(Link2)(
@@ -42,7 +46,11 @@ const Link3 = styleComponent$V2$(Link2)(
             }
         }
     }),
-    { c: '', d: '' }
+    { c: '', d: '' },
+    (params: { width: string; opacity: number }) => ({
+        c: params.width,
+        d: params.opacity
+    })
 );
 
 const MyThemeSelector = styleComponent(ThemeSelector)('MyThemeSelector', {
@@ -50,7 +58,7 @@ const MyThemeSelector = styleComponent(ThemeSelector)('MyThemeSelector', {
 });
 
 export class App extends React.Component {
-    public state = { color: 'red' };
+    public state = { foo: false };
 
     public render() {
         return (
@@ -59,23 +67,23 @@ export class App extends React.Component {
                 <Link>First link</Link>
                 <Link2
                     cssVars={{
-                        a: this.state.color
+                        foo: this.state.foo
                     }}
                 >
                     Hello World!
                 </Link2>
                 <Link3
                     cssVars={{
-                        a: 'green',
-                        c: '10px',
-                        d: 1
+                        foo: true,
+                        width: '10px',
+                        opacity: 1
                     }}
                 >
                     Another link
                 </Link3>
                 <button
                     onClick={() => {
-                        this.setState({ color: 'blue' });
+                        this.setState({ foo: true });
                     }}
                 >
                     Change background color to blue

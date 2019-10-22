@@ -135,11 +135,17 @@ const styledComponentFactory = <TScopedThemeVars>(
 const styledComponentFactory$V2$ = <TScopedThemeVars>(
     getClassName: GetClassName1,
     scopedThemeVars: TScopedThemeVars
-) => <TProps extends { className?: string }>(Component: StylableComponent<TProps>) => <TCssVars extends string>(
+) => <TProps extends { className?: string }>(Component: StylableComponent<TProps>) => <
+    TCssVars extends string,
+    TParams
+>(
     styledComponentName: string,
     css: StaticCss1<TScopedThemeVars, Record<TCssVars, string>>,
-    cssVars?: Record<TCssVars, string>
+    cssVars?: Record<TCssVars, string>,
+    mapper?: (params: TParams) => Record<TCssVars, string | number>
 ) => {
+    const hasDynamicCss = !!cssVars;
+
     cssVars = cssVars || ({} as Record<TCssVars, string>);
 
     const buildVarName = (vKey: keyof typeof cssVars) => `--${cssVars[vKey] || vKey}`;
@@ -165,9 +171,7 @@ const styledComponentFactory$V2$ = <TScopedThemeVars>(
 
     const isTargetStyledComponent = isStyledComponent1(Component);
 
-    const StyledComponent = class extends React.Component<
-        StyledComponentProps1<TProps, Record<TCssVars, string | number>>
-    > {
+    const StyledComponent = class extends React.Component<StyledComponentProps1<TProps, TParams>> {
         public static [staticCssField] = staticCssArray;
 
         public render() {
@@ -196,9 +200,13 @@ const styledComponentFactory$V2$ = <TScopedThemeVars>(
                 throw new Error(`Cannot find the root element for the styled component '${styledComponentName}'.`);
             }
 
-            Object.keys(cssVars).forEach((vKey: keyof typeof cssVars) => {
-                elm.style.setProperty(buildVarName(vKey), `${this.props.cssVars[vKey]}`);
-            });
+            if (hasDynamicCss) {
+                const f = mapper(this.props.cssVars);
+
+                Object.keys(cssVars).forEach((vKey: keyof typeof cssVars) => {
+                    elm.style.setProperty(buildVarName(vKey), `${f[vKey]}`);
+                });
+            }
         }
     };
 
