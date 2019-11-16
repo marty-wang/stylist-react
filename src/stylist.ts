@@ -186,6 +186,10 @@ const styledComponentFactory$V2$ = <TScopedThemeVars, TScopedThemeValues>(
         })
     );
 
+    if (isStyledComponent(Component)) {
+        throw new Error('Stylist V2 cannot style V1 components');
+    }
+
     const isTargetStyledComponent = isStyledComponent1(Component);
 
     const StyledComponent = class extends React.Component<StyledComponentProps1<TProps, TCustomProps>> {
@@ -280,12 +284,6 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
         const getClassName = classNameFactory(scope, scopedThemeVars);
         const getAnimationName = animationNameFactory(scopedThemeVars);
         const styleComponent = styledComponentFactory(getClassName, scopedThemeVars);
-        const styleComponent$V2$ = styledComponentFactory$V2$(
-            getClassName,
-            scopedThemeVars,
-            currentTheme[scope],
-            eventEmitter
-        );
 
         const ScopedThemeConsumer = class extends React.Component<{
             children: (themeVars: typeof scopedThemeVars) => React.ReactNode;
@@ -323,32 +321,58 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
             styleRect: styleComponent<React.SVGAttributes<SVGRectElement>>('rect'),
             styleCircle: styleComponent<React.SVGAttributes<SVGCircleElement>>('circle'),
             styleLine: styleComponent<React.SVGAttributes<SVGLineElement>>('line'),
-            stylePath: styleComponent<React.SVGAttributes<SVGPathElement>>('path'),
+            stylePath: styleComponent<React.SVGAttributes<SVGPathElement>>('path')
+        };
+    };
+
+    const getStylistV2 = <TScope extends string>(scope: TScope) => {
+        const scopedThemeVars = ensureDefined(pluckExt(themeVars, scope));
+        const getClassName = classNameFactory(scope, scopedThemeVars);
+        const getAnimationName = animationNameFactory(scopedThemeVars);
+        const styleComponent$V2$ = styledComponentFactory$V2$(
+            getClassName,
+            scopedThemeVars,
+            currentTheme[scope],
+            eventEmitter
+        );
+
+        const ScopedThemeConsumer = class extends React.Component<{
+            children: (themeVars: typeof scopedThemeVars) => React.ReactNode;
+        }> {
+            public render() {
+                return this.props.children(scopedThemeVars);
+            }
+        };
+
+        return {
+            ScopedThemeConsumer,
+            getClassName,
+            getAnimationName,
 
             // V2
-            styleComponent$V2$,
-            styleDiv$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLDivElement>>('div'),
-            styleSpan$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLSpanElement>>('span'),
-            styleHeader$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLElement>>('header'),
-            styleFooter$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLElement>>('footer'),
-            styleButton$V2$: styleComponent$V2$<React.ButtonHTMLAttributes<HTMLButtonElement>>('button'),
-            styleUlist$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLUListElement>>('ul'),
-            styleLi$V2$: styleComponent$V2$<React.LiHTMLAttributes<HTMLLIElement>>('li'),
-            styleAnchor$V2$: styleComponent$V2$<React.AnchorHTMLAttributes<HTMLAnchorElement>>('a'),
-            styleInput$V2$: styleComponent$V2$<React.InputHTMLAttributes<HTMLInputElement>>('input'),
-            styleTextArea$V2$: styleComponent$V2$<React.TextareaHTMLAttributes<HTMLTextAreaElement>>('textarea'),
-            styleParagraph$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLParagraphElement>>('p'),
-            styleLabel$V2$: styleComponent$V2$<React.LabelHTMLAttributes<HTMLLabelElement>>('label'),
-            styleMain$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLMainElement>>('main'),
-            styleIFrame$V2$: styleComponent$V2$<React.IframeHTMLAttributes<HTMLIFrameElement>>('iframe'),
-            styleNav$V2$: styleComponent$V2$<React.HTMLAttributes<HTMLElement>>('nav'),
+            styleComponent: styleComponent$V2$,
+            styleDiv: styleComponent$V2$<React.HTMLAttributes<HTMLDivElement>>('div'),
+            styleSpan: styleComponent$V2$<React.HTMLAttributes<HTMLSpanElement>>('span'),
+            styleHeader: styleComponent$V2$<React.HTMLAttributes<HTMLElement>>('header'),
+            styleFooter: styleComponent$V2$<React.HTMLAttributes<HTMLElement>>('footer'),
+            styleButton: styleComponent$V2$<React.ButtonHTMLAttributes<HTMLButtonElement>>('button'),
+            styleUlist: styleComponent$V2$<React.HTMLAttributes<HTMLUListElement>>('ul'),
+            styleLi: styleComponent$V2$<React.LiHTMLAttributes<HTMLLIElement>>('li'),
+            styleAnchor: styleComponent$V2$<React.AnchorHTMLAttributes<HTMLAnchorElement>>('a'),
+            styleInput: styleComponent$V2$<React.InputHTMLAttributes<HTMLInputElement>>('input'),
+            styleTextArea: styleComponent$V2$<React.TextareaHTMLAttributes<HTMLTextAreaElement>>('textarea'),
+            styleParagraph: styleComponent$V2$<React.HTMLAttributes<HTMLParagraphElement>>('p'),
+            styleLabel: styleComponent$V2$<React.LabelHTMLAttributes<HTMLLabelElement>>('label'),
+            styleMain: styleComponent$V2$<React.HTMLAttributes<HTMLMainElement>>('main'),
+            styleIFrame: styleComponent$V2$<React.IframeHTMLAttributes<HTMLIFrameElement>>('iframe'),
+            styleNav: styleComponent$V2$<React.HTMLAttributes<HTMLElement>>('nav'),
             //SVG stylers
-            styleSvg$V2$: styleComponent$V2$<React.SVGAttributes<SVGSVGElement>>('svg'),
-            styleG$V2$: styleComponent$V2$<React.SVGAttributes<SVGGElement>>('g'),
-            styleRect$V2$: styleComponent$V2$<React.SVGAttributes<SVGRectElement>>('rect'),
-            styleCircle$V2$: styleComponent$V2$<React.SVGAttributes<SVGCircleElement>>('circle'),
-            styleLine$V2$: styleComponent$V2$<React.SVGAttributes<SVGLineElement>>('line'),
-            stylePath$V2$: styleComponent$V2$<React.SVGAttributes<SVGPathElement>>('path')
+            styleSvg: styleComponent$V2$<React.SVGAttributes<SVGSVGElement>>('svg'),
+            styleG: styleComponent$V2$<React.SVGAttributes<SVGGElement>>('g'),
+            styleRect: styleComponent$V2$<React.SVGAttributes<SVGRectElement>>('rect'),
+            styleCircle: styleComponent$V2$<React.SVGAttributes<SVGCircleElement>>('circle'),
+            styleLine: styleComponent$V2$<React.SVGAttributes<SVGLineElement>>('line'),
+            stylePath: styleComponent$V2$<React.SVGAttributes<SVGPathElement>>('path')
         };
     };
 
@@ -381,6 +405,7 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
 
     return {
         getStylist,
+        getStylistV2,
         setTheme,
         getScopedTheme,
         onThemeChanged

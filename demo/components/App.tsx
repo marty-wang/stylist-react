@@ -2,24 +2,24 @@ import { getStylist } from 'demo/themes/stylist';
 import * as React from 'react';
 import { ThemeSelector } from './ThemeSelector';
 
-const { styleDiv$V2$, styleAnchor$V2$, styleComponent$V2$ } = getStylist('App');
+const { styleDiv, styleAnchor, styleComponent } = getStylist('App');
 
-const Root = styleDiv$V2$('Root', theme => ({
+const Root = styleDiv('Root', theme => ({
     height: '100vh',
     padding: '16px',
     background: theme.backgroundColor,
     color: theme.foregroundColor
 }));
 
-const Root1 = styleComponent$V2$(Root)('Root1', {
+const Root1 = styleComponent(Root)('Root1', {
     fontSize: 32
 });
 
-const Link = styleAnchor$V2$('Link', {
+const Link = styleAnchor('Link', {
     fontSize: 48
 });
 
-const Link2 = styleComponent$V2$(Link)(
+const Link2 = styleComponent(Link)(
     'Link2',
     (_, cssVars) => ({
         color: cssVars.foreground,
@@ -43,7 +43,7 @@ const Link2 = styleComponent$V2$(Link)(
     }
 );
 
-const Link3 = styleComponent$V2$(Link2)(
+const Link3 = styleComponent(Link2)(
     'Link3',
     (theme, cssVars) => ({
         opacity: 0.5,
@@ -64,7 +64,7 @@ const Link3 = styleComponent$V2$(Link2)(
     }
 );
 
-const MyThemeSelector = styleComponent$V2$(ThemeSelector)('MyThemeSelector', {
+const MyThemeSelector = styleComponent(ThemeSelector)('MyThemeSelector', {
     margin: '16px'
 });
 

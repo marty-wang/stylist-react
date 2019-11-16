@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { themeConfigs, ThemeName, switchTheme, getStylist } from 'demo/themes/stylist';
 
-const { styleDiv$V2$ } = getStylist('ThemeSelector');
+const { styleDiv } = getStylist('ThemeSelector');
 
-const Root = styleDiv$V2$('Root', {
+const Root = styleDiv('Root', {
     display: 'flex',
     $nest: {
         '& > *': {

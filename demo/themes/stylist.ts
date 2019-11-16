@@ -1,8 +1,8 @@
-import { stylistFactory } from "src/stylist";
-import { lightThemeConfig, darkThemeConfig } from "demo/themes/themeConfig";
-import { buildTheme } from "demo/themes/themeBuilder";
+import { stylistFactory } from 'src/stylist';
+import { lightThemeConfig, darkThemeConfig } from 'demo/themes/themeConfig';
+import { buildTheme } from 'demo/themes/themeBuilder';
 
-export const { getStylist, setTheme } = stylistFactory("DEMO", lightThemeConfig, buildTheme);
+export const { getStylistV2: getStylist, setTheme } = stylistFactory('DEMO', lightThemeConfig, buildTheme);
 
 export const themeConfigs = {
     light: lightThemeConfig,
