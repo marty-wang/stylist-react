@@ -312,7 +312,7 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
             styleTextArea: styleComponent<React.TextareaHTMLAttributes<HTMLTextAreaElement>>('textarea'),
             styleParagraph: styleComponent<React.HTMLAttributes<HTMLParagraphElement>>('p'),
             styleLabel: styleComponent<React.LabelHTMLAttributes<HTMLLabelElement>>('label'),
-            styleMain: styleComponent<React.HTMLAttributes<HTMLMainElement>>('main'),
+            styleMain: styleComponent<React.HTMLAttributes<HTMLElement>>('main'),
             styleIFrame: styleComponent<React.IframeHTMLAttributes<HTMLIFrameElement>>('iframe'),
             styleNav: styleComponent<React.HTMLAttributes<HTMLElement>>('nav'),
             //SVG stylers
@@ -363,7 +363,7 @@ export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
             styleTextArea: styleComponent$V2$<React.TextareaHTMLAttributes<HTMLTextAreaElement>>('textarea'),
             styleParagraph: styleComponent$V2$<React.HTMLAttributes<HTMLParagraphElement>>('p'),
             styleLabel: styleComponent$V2$<React.LabelHTMLAttributes<HTMLLabelElement>>('label'),
-            styleMain: styleComponent$V2$<React.HTMLAttributes<HTMLMainElement>>('main'),
+            styleMain: styleComponent$V2$<React.HTMLAttributes<HTMLElement>>('main'),
             styleIFrame: styleComponent$V2$<React.IframeHTMLAttributes<HTMLIFrameElement>>('iframe'),
             styleNav: styleComponent$V2$<React.HTMLAttributes<HTMLElement>>('nav'),
             //SVG stylers
