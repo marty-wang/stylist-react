@@ -5,8 +5,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { keyframes, style, types } from 'typestyle';
+import { EventEmitter, getEventEmitter } from './eventEmitter';
 import { applyTheme, createThemeValueTable, createThemeVars, endsWith, pluckExt, Theme } from './utils';
-import { getEventEmitter, EventEmitter } from './eventEmitter';
 
 export type CSSProperties = types.CSSProperties;
 export type NestedCSSProperties = types.NestedCSSProperties;
@@ -266,16 +266,23 @@ export const joinClassNames = (...classNames: string[]): string => classNames.fi
 
 const ensureDefined = <T>(obj: T): T => obj || <any>{};
 
+type Options = Partial<{
+    nonce: string;
+}>;
+
 export const stylistFactory = <TThemeConfig, TTheme extends Theme>(
     namespace: string,
     initialThemeConfig: TThemeConfig,
-    buildTheme: (config: TThemeConfig) => TTheme
+    buildTheme: (config: TThemeConfig) => TTheme,
+    options?: Options
 ) => {
+    options = options || { nonce: '' };
+
     const currentTheme = buildTheme(initialThemeConfig);
     const themeVars = createThemeVars(namespace, currentTheme);
 
     const themeValueTable = createThemeValueTable(namespace, currentTheme);
-    applyTheme(namespace, themeValueTable);
+    applyTheme(namespace, themeValueTable, options.nonce);
 
     const eventEmitter = getEventEmitter();
 

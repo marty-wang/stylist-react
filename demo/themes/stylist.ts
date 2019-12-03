@@ -1,8 +1,10 @@
-import { stylistFactory } from 'src/stylist';
-import { lightThemeConfig, darkThemeConfig } from 'demo/themes/themeConfig';
 import { buildTheme } from 'demo/themes/themeBuilder';
+import { darkThemeConfig, lightThemeConfig } from 'demo/themes/themeConfig';
+import { stylistFactory } from 'src/stylist';
 
-export const { getStylistV2: getStylist, setTheme } = stylistFactory('DEMO', lightThemeConfig, buildTheme);
+export const { getStylistV2: getStylist, setTheme } = stylistFactory('DEMO', lightThemeConfig, buildTheme, {
+    nonce: `${Math.random()}`
+});
 
 export const themeConfigs = {
     light: lightThemeConfig,

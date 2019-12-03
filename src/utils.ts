@@ -43,13 +43,20 @@ export const createThemeValueTable = <TTheme extends Theme>(namespace: string, t
     return table;
 };
 
-export const applyTheme = (tagId: string, themeValueTable: Record<string, string>) => {
+export const applyTheme = (tagId: string, themeValueTable: Record<string, string>, nonce?: string) => {
     let styleTag = document.getElementById(tagId);
 
     if (!styleTag) {
         styleTag = document.createElement('style');
+
         styleTag.id = tagId;
+
+        if (nonce) {
+            styleTag.setAttribute('nonce', nonce);
+        }
+
         styleTag.setAttribute('type', 'text/css');
+
         document.head.appendChild(styleTag);
     }
 
