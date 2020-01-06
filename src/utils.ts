@@ -1,3 +1,5 @@
+import { setStylesTarget } from 'typestyle';
+
 export type ValueOrUndefined<TO, TK> = TK extends keyof TO ? TO[TK] : undefined;
 
 export type Theme = { [scope: string]: { [name: string]: string | number } };
@@ -44,12 +46,12 @@ export const createThemeValueTable = <TTheme extends Theme>(namespace: string, t
 };
 
 export const applyTheme = (tagId: string, themeValueTable: Record<string, string>, nonce?: string) => {
-    let styleTag = document.getElementById(tagId);
+    const createTagId = (suffix: string) => `${tagId}-${suffix}`;
 
-    if (!styleTag) {
-        styleTag = document.createElement('style');
+    const appendStyleTag = (suffix: string) => {
+        const styleTag = document.createElement('style');
 
-        styleTag.id = tagId;
+        styleTag.id = createTagId(suffix);
 
         if (nonce) {
             styleTag.setAttribute('nonce', nonce);
@@ -58,6 +60,15 @@ export const applyTheme = (tagId: string, themeValueTable: Record<string, string
         styleTag.setAttribute('type', 'text/css');
 
         document.head.appendChild(styleTag);
+
+        return styleTag;
+    };
+
+    let cssVarsTag = document.getElementById(createTagId('vars'));
+
+    if (!cssVarsTag) {
+        cssVarsTag = appendStyleTag('vars');
+        setStylesTarget(appendStyleTag('css'));
     }
 
     const themeValueStr = Object.keys(themeValueTable)
@@ -67,7 +78,7 @@ export const applyTheme = (tagId: string, themeValueTable: Record<string, string
         }, [])
         .join(';');
 
-    styleTag.innerText = `:root {${themeValueStr}}`;
+    cssVarsTag.innerText = `:root {${themeValueStr}}`;
 };
 
 type Predicate<T> = (item: T, idx: number) => boolean;
